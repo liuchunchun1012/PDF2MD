@@ -6,6 +6,8 @@ PDF2MD 是一款隐私优先的客户端网页应用，可将 PDF 文档（包�
 
 与传统的基于正则表达式的转换器不同，本工具利用 **Google Gemini 2.5 Flash** 模型的多模态能力，准确识别标题、列表、表格和复杂布局。
 
+如果你觉得我的程序好用，你可以在这里：https://afdian.com/a/liuchunchun 支持我。
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![React](https://img.shields.io/badge/Built%20With-React-61DAFB.svg)
 ![Gemini](https://img.shields.io/badge/Powered%20By-Gemini%202.5-8E75B2.svg)
@@ -137,6 +139,8 @@ npm run preview
 PDF2MD is a privacy-first, client-side web application that converts PDF documents—including large textbooks and scanned files—into clean, structured Markdown.
 
 Unlike traditional regex-based converters, this tool leverages the multimodal capabilities of **Google's Gemini 2.5 Flash** model to accurately interpret headers, lists, tables, and complex layouts.
+
+If you find this app useful, please support me here: https://afdian.com/a/liuchunchun
 
 ## ✨ Key Features
 
