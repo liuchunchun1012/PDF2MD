@@ -7,6 +7,8 @@ import { MarkdownPreview } from './components/MarkdownPreview';
 import { ApiKeyInput } from './components/ApiKeyInput';
 import { ConvertedFile, ConversionStatus } from './types';
 import { convertPdfToMarkdown } from './services/gemini';
+import { getProgress, getFileId, getUnfinishedWork, clearProgress, ConversionProgress } from './services/progressCache';
+import { ResumePrompt } from './components/ResumePrompt';
 
 const App: React.FC = () => {
   const [files, setFiles] = useState<ConvertedFile[]>([]);
@@ -15,6 +17,22 @@ const App: React.FC = () => {
   const [isLoadingKey, setIsLoadingKey] = useState(true);
   const conversionQueueRef = useRef<string[]>([]);
   const isProcessingRef = useRef(false);
+  const [unfinishedWork, setUnfinishedWork] = useState<ConversionProgress[]>([]);
+
+  // Check for unfinished work on mount
+  useEffect(() => {
+    setUnfinishedWork(getUnfinishedWork());
+  }, []);
+
+  const handleResumeWork = (progress: ConversionProgress) => {
+    // Close the prompt for this item
+    setUnfinishedWork(prev => prev.filter(p => p.fileId !== progress.fileId));
+  };
+
+  const handleDiscardWork = (progress: ConversionProgress) => {
+    clearProgress(progress.fileId);
+    setUnfinishedWork(prev => prev.filter(p => p.fileId !== progress.fileId));
+  };
 
   // Load API Key from localStorage on mount
   useEffect(() => {
@@ -36,12 +54,19 @@ const App: React.FC = () => {
   };
 
   const handleFilesAdded = useCallback((newFiles: File[]) => {
-    const newConvertedFiles: ConvertedFile[] = newFiles.map(file => ({
-      id: uuidv4(),
-      file,
-      status: ConversionStatus.IDLE,
-      progress: 0,
-    }));
+    const newConvertedFiles: ConvertedFile[] = newFiles.map(file => {
+      const fileId = getFileId(file.name, file.size);
+      const progress = getProgress(fileId);
+
+      return {
+        id: uuidv4(),
+        file,
+        status: ConversionStatus.IDLE,
+        progress: progress ? Math.round((progress.completedChunks.length / progress.totalChunks) * 100) : 0,
+        resumeProgress: progress || undefined,
+        statusMessage: progress ? `Ready to resume (${Math.round((progress.completedChunks.length / progress.totalChunks) * 100)}% done)` : undefined
+      };
+    });
     setFiles(prev => [...prev, ...newConvertedFiles]);
   }, []);
 
@@ -77,7 +102,8 @@ const App: React.FC = () => {
               ? { ...f, statusMessage: msg, progress: percent }
               : f
           ));
-        }
+        },
+        fileEntry.resumeProgress
       );
 
       setFiles(prev => prev.map(f =>
@@ -154,7 +180,13 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col font-sans text-slate-900 bg-[#f8fafc]">
       <Header hasApiKey={!!apiKey} onClearKey={handleClearApiKey} />
 
-      <main className="flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10">
+      <ResumePrompt
+        unfinishedWork={unfinishedWork}
+        onResume={handleResumeWork}
+        onDiscard={handleDiscardWork}
+      />
+
+      <main className="max-w-5xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
 
         {/* Hero Section */}
         <div className="text-center mb-10">

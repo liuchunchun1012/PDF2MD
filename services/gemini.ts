@@ -2,6 +2,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { PDFDocument } from 'pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
+import { saveProgress, getProgress, clearProgress, getFileId, ConversionProgress } from './progressCache';
 
 // Initialize PDF.js worker - use unpkg for better reliability
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
@@ -145,7 +146,8 @@ const callGeminiWithPdfChunk = async (base64Data: string, mimeType: string, apiK
 export const convertPdfToMarkdown = async (
   file: File,
   apiKey: string,
-  onProgress?: (message: string, percent: number) => void
+  onProgress?: (message: string, percent: number) => void,
+  resumeFromProgress?: ConversionProgress | null
 ): Promise<string> => {
   if (!apiKey) throw new Error("API Key is missing.");
 
@@ -178,9 +180,34 @@ export const convertPdfToMarkdown = async (
     // Chunk the text (Gemini has a large context, but let's be safe with ~40k chars per chunk)
     const CHUNK_SIZE = 40000;
     const totalTextParts = Math.ceil(rawText.length / CHUNK_SIZE);
+    const fileId = getFileId(file.name, file.size);
+
+    // Initialize or resume progress
     let fullMarkdown = "";
+    let progress: ConversionProgress = resumeFromProgress || {
+      fileId,
+      fileName: file.name,
+      fileSize: file.size,
+      totalChunks: totalTextParts,
+      completedChunks: [],
+      results: {},
+      timestamp: Date.now(),
+      mode: 'text'
+    };
+
+    // If resuming, restore completed chunks
+    if (resumeFromProgress) {
+      console.log(`[Resume] Continuing from ${resumeFromProgress.completedChunks.length}/${totalTextParts} chunks`);
+      if (onProgress) onProgress(`🔄 Resuming... ${resumeFromProgress.completedChunks.length}/${totalTextParts} chunks already done`, 15);
+    }
 
     for (let i = 0; i < totalTextParts; i++) {
+      // Skip if already completed
+      if (progress.completedChunks.includes(i)) {
+        fullMarkdown += progress.results[i] + "\n\n";
+        continue;
+      }
+
       const start = i * CHUNK_SIZE;
       const end = Math.min(start + CHUNK_SIZE, rawText.length);
       const chunk = rawText.substring(start, end);
@@ -190,8 +217,16 @@ export const convertPdfToMarkdown = async (
 
       const mdChunk = await callGeminiWithText(chunk, apiKey, i, totalTextParts);
       fullMarkdown += mdChunk + "\n\n";
+
+      // Save progress after each chunk
+      progress.results[i] = mdChunk;
+      progress.completedChunks.push(i);
+      progress.timestamp = Date.now();
+      saveProgress(progress);
     }
 
+    // Clear cache on success
+    clearProgress(fileId);
     if (onProgress) onProgress("Done", 100);
     return fullMarkdown;
   }
@@ -216,10 +251,36 @@ export const convertPdfToMarkdown = async (
     const avgPageSize = file.size / totalPages;
     const pagesPerChunk = Math.max(1, Math.floor(CHUNK_SIZE_LIMIT / avgPageSize));
     const numChunks = Math.ceil(totalPages / pagesPerChunk);
+    const fileId = getFileId(file.name, file.size);
+
+    // Initialize or resume progress
     let fullMarkdown = "";
+    let progress: ConversionProgress = resumeFromProgress || {
+      fileId,
+      fileName: file.name,
+      fileSize: file.size,
+      totalChunks: numChunks,
+      completedChunks: [],
+      results: {},
+      timestamp: Date.now(),
+      mode: 'visual'
+    };
+
+    // If resuming, restore completed chunks
+    if (resumeFromProgress) {
+      console.log(`[Resume] Continuing from ${resumeFromProgress.completedChunks.length}/${numChunks} chunks`);
+      if (onProgress) onProgress(`🔄 Resuming... ${resumeFromProgress.completedChunks.length}/${numChunks} chunks already done`, 25);
+    }
 
     for (let i = 0; i < totalPages; i += pagesPerChunk) {
       const chunkIndex = Math.floor(i / pagesPerChunk);
+
+      // Skip if already completed
+      if (progress.completedChunks.includes(chunkIndex)) {
+        fullMarkdown += progress.results[chunkIndex] + "\n\n";
+        continue;
+      }
+
       const chunkProgress = 25 + Math.floor((chunkIndex / numChunks) * 70);
       if (onProgress) onProgress(`Visual processing chunk ${chunkIndex + 1}/${numChunks}...`, chunkProgress);
 
@@ -235,8 +296,16 @@ export const convertPdfToMarkdown = async (
 
       const chunkRes = await callGeminiWithPdfChunk(base64, 'application/pdf', apiKey, chunkIndex, numChunks);
       fullMarkdown += chunkRes + "\n\n";
+
+      // Save progress after each chunk
+      progress.results[chunkIndex] = chunkRes;
+      progress.completedChunks.push(chunkIndex);
+      progress.timestamp = Date.now();
+      saveProgress(progress);
     }
 
+    // Clear cache on success
+    clearProgress(fileId);
     if (onProgress) onProgress("Done", 100);
     return fullMarkdown;
   }

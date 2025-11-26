@@ -14,6 +14,7 @@ export interface ConvertedFile {
   error?: string;
   progress: number; // 0 to 100
   statusMessage?: string; // e.g., "Splitting PDF...", "Converting part 1/5..."
+  resumeProgress?: any; // ConversionProgress from progressCache
 }
 
 export interface MarkdownPreviewProps {
@@ -24,7 +25,7 @@ export interface MarkdownPreviewProps {
 
 // Extend global navigator interface for deviceMemory
 declare global {
-    interface Navigator {
-        deviceMemory?: number;
-    }
+  interface Navigator {
+    deviceMemory?: number;
+  }
 }

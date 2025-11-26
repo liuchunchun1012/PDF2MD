@@ -13,10 +13,10 @@ export const ConversionList: React.FC<ConversionListProps> = ({ files, onConvert
 
   return (
     <div className="mt-8 space-y-3">
-        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider px-1">Your Documents</h2>
+      <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider px-1">Your Documents</h2>
       {files.map((file) => (
-        <div 
-          key={file.id} 
+        <div
+          key={file.id}
           className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col gap-4 transition-all hover:shadow-md"
         >
           <div className="flex items-start sm:items-center justify-between gap-4">
@@ -47,7 +47,7 @@ export const ConversionList: React.FC<ConversionListProps> = ({ files, onConvert
                   </svg>
                 )}
               </div>
-              
+
               <div className="flex flex-col min-w-0">
                 <span className="font-medium text-slate-800 truncate block max-w-[200px] sm:max-w-md" title={file.file.name}>
                   {file.file.name}
@@ -55,11 +55,11 @@ export const ConversionList: React.FC<ConversionListProps> = ({ files, onConvert
                 <span className="text-xs text-slate-500">
                   {(file.file.size / (1024 * 1024)).toFixed(2)} MB • {
                     file.status === ConversionStatus.PROCESSING && file.statusMessage ? (
-                        <span className="text-indigo-600 font-medium">{file.statusMessage}</span>
+                      <span className="text-indigo-600 font-medium">{file.statusMessage}</span>
                     ) : (
-                        file.status === ConversionStatus.IDLE ? 'Ready' : 
-                        file.status === ConversionStatus.PROCESSING ? 'Converting...' : 
-                        file.status === ConversionStatus.SUCCESS ? 'Completed' : 'Error'
+                      file.status === ConversionStatus.IDLE ? (file.statusMessage || 'Ready') :
+                        file.status === ConversionStatus.PROCESSING ? 'Converting...' :
+                          file.status === ConversionStatus.SUCCESS ? 'Completed' : 'Error'
                     )
                   }
                 </span>
@@ -71,24 +71,24 @@ export const ConversionList: React.FC<ConversionListProps> = ({ files, onConvert
 
             <div className="flex items-center gap-2">
               {file.status === ConversionStatus.IDLE && (
-                <button 
+                <button
                   onClick={() => onConvert(file.id)}
                   className="px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm shadow-indigo-200 whitespace-nowrap"
                 >
-                  Convert
+                  {file.resumeProgress ? 'Resume' : 'Convert'}
                 </button>
               )}
 
               {file.status === ConversionStatus.SUCCESS && (
-                 <button 
-                 onClick={() => onPreview(file.id)}
-                 className="px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200 whitespace-nowrap"
-               >
-                 View Markdown
-               </button>
+                <button
+                  onClick={() => onPreview(file.id)}
+                  className="px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm shadow-emerald-200 whitespace-nowrap"
+                >
+                  View Markdown
+                </button>
               )}
 
-              <button 
+              <button
                 onClick={() => onRemove(file.id)}
                 className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                 title="Remove file"
@@ -99,14 +99,14 @@ export const ConversionList: React.FC<ConversionListProps> = ({ files, onConvert
               </button>
             </div>
           </div>
-          
+
           {/* Progress Bar */}
           {file.status === ConversionStatus.PROCESSING && (
             <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                <div 
-                    className="bg-indigo-600 h-1.5 rounded-full transition-all duration-300 ease-out"
-                    style={{ width: `${file.progress}%` }}
-                ></div>
+              <div
+                className="bg-indigo-600 h-1.5 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${file.progress}%` }}
+              ></div>
             </div>
           )}
         </div>
