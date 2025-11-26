@@ -18,52 +18,58 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
 };
 
 const callGeminiWithChunk = async (base64Data: string, mimeType: string, apiKey: string, partIndex: number, totalParts: number): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey });
+  try {
+    const ai = new GoogleGenAI({ apiKey });
 
-  // Customize prompt based on if it's a part of a larger document
-  const promptText = totalParts > 1
-    ? `Convert this section (Part ${partIndex + 1} of ${totalParts}) of a PDF document into clean, structured Markdown. 
-           Preserve headers, tables, and lists. 
-           Do NOT start page numbers from 1 if this looks like the middle of a chapter. 
-           Do NOT include front matter or table of contents if this is a later section.`
-    : "Convert the attached PDF document into clean, well-structured Markdown. Preserve headers, tables, and lists exactly as they appear.";
+    // Customize prompt based on if it's a part of a larger document
+    const promptText = totalParts > 1
+      ? `Convert this section (Part ${partIndex + 1} of ${totalParts}) of a PDF document into clean, structured Markdown. 
+             Preserve headers, tables, and lists. 
+             Do NOT start page numbers from 1 if this looks like the middle of a chapter. 
+             Do NOT include front matter or table of contents if this is a later section.`
+      : "Convert the attached PDF document into clean, well-structured Markdown. Preserve headers, tables, and lists exactly as they appear.";
 
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
-    contents: {
-      parts: [
-        {
-          inlineData: {
-            data: base64Data,
-            mimeType: mimeType
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: {
+        parts: [
+          {
+            inlineData: {
+              data: base64Data,
+              mimeType: mimeType
+            }
+          },
+          {
+            text: promptText
           }
-        },
-        {
-          text: promptText
-        }
-      ]
-    },
-    config: {
-      systemInstruction: `You are a precise document conversion assistant. 
-          Your task is to extract text from PDF files and format it as Markdown.
-          
-          Rules:
-          - Do not strip out content.
-          - Format tables using Markdown table syntax.
-          - Do not include 'Here is the markdown' preamble.
-          - Do not use markdown code fences (\`\`\`markdown) in the output.
-          - Ignore images (do not describe them).`
+        ]
+      },
+      config: {
+        systemInstruction: `You are a precise document conversion assistant. 
+            Your task is to extract text from PDF files and format it as Markdown.
+            
+            Rules:
+            - Do not strip out content.
+            - Format tables using Markdown table syntax.
+            - Do not include 'Here is the markdown' preamble.
+            - Do not use markdown code fences (\`\`\`markdown) in the output.
+            - Ignore images (do not describe them).`
+      }
+    });
+
+    const text = response.text;
+    if (!text) {
+      throw new Error("No content generated from the model.");
     }
-  });
 
-  const text = response.text;
-  if (!text) {
-    throw new Error("No content generated from the model.");
+    // Cleanup
+    return text.replace(/^```markdown\n/, '').replace(/^```\n/, '').replace(/\n```$/, '');
+  } catch (error) {
+    console.error("[Gemini Service] Error in callGeminiWithChunk:", error);
+    throw error;
   }
-
-  // Cleanup
-  return text.replace(/^```markdown\n/, '').replace(/^```\n/, '').replace(/\n```$/, '');
 }
+
 
 export const convertPdfToMarkdown = async (
   file: File,
@@ -147,7 +153,7 @@ export const convertPdfToMarkdown = async (
         const pdfBytes = await subDoc.save();
 
         // 3. Convert to Base64
-        const chunkBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const chunkBlob = new Blob([pdfBytes as BlobPart], { type: 'application/pdf' });
         const base64 = await blobToBase64(chunkBlob);
 
         // 4. Send to Gemini

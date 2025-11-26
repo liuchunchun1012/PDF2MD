@@ -78,6 +78,7 @@ Since this tool processes PDFs in your browser's memory (RAM), the size of the f
 
 4.  Open your browser and enter your **Google Gemini API Key**.
     *   *Note: You can get a key from [Google AI Studio](https://aistudio.google.com/).*
+    *   *Important: If you are in a region where Gemini API is not supported (e.g., China, Europe), you may need to use a VPN.*
 
 ## 🛡️ Privacy & Security
 
