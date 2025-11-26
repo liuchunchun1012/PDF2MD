@@ -1,0 +1,5 @@
+{
+  "name": "PDF to Markdown Converter",
+  "description": "A streamlined tool to convert PDF documents into clean, structured Markdown using the power of Gemini 2.5.",
+  "requestFramePermissions": []
+}
