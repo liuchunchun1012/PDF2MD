@@ -12,6 +12,11 @@ PDF2MD 是一款隐私优先的客户端网页应用，可将 PDF 文档（包�
 ![React](https://img.shields.io/badge/Built%20With-React-61DAFB.svg)
 ![Gemini](https://img.shields.io/badge/Powered%20By-Gemini%202.5-8E75B2.svg)
 
+<div align="center">
+  <img src="docs/images/landing-page.png" alt="Landing Page" width="45%">
+  <img src="docs/images/upload-interface.png" alt="Upload Interface" width="45%">
+</div>
+
 ## ✨ 核心功能
 
 *   **📚 支持大文件（50MB+）：** 大多数 AI 工具限制文件大小为 20MB。PDF2MD 会自动分析、拆分并在本地分块处理大型 PDF，然后合并结果，让您可以转换整本教科书。
