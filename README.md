@@ -13,8 +13,8 @@ PDF2MD 是一款隐私优先的客户端网页应用，可将 PDF 文档（包�
 ![Gemini](https://img.shields.io/badge/Powered%20By-Gemini%202.5-8E75B2.svg)
 
 <div align="center">
-  <img src="docs/images/landing-page.png" alt="Landing Page" width="45%">
-  <img src="docs/images/upload-interface.png" alt="Upload Interface" width="45%">
+  <img src="docs/images/landing-page.png" alt="Landing Page" height="300">
+  <img src="docs/images/upload-interface.png" alt="Upload Interface" height="300">
 </div>
 
 ## ✨ 核心功能
