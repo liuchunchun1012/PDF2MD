@@ -72,12 +72,17 @@ PDF2MD 是一款隐私优先的客户端网页应用，可将 PDF 文档（包�
 
 ## 📦 安装与使用
 
-### 开发模式（用于调试）：
+### 安装：
 
 ```bash
 git clone https://github.com/liuchunchun1012/PDF2MD.git
 cd PDF2MD
 npm install
+```
+
+### 开发模式（用于调试）：
+
+```bash
 npm run dev
 ```
 
@@ -99,7 +104,6 @@ npm run preview
 3.  点击"Convert"开始转换
 4.  转换完成后预览或下载Markdown文件
 
-> **VPN提示：** 如果您所在的地区不支持 Gemini API（例如中国大陆），需要使用 VPN。
 
 ## 🛡️ 隐私与安全
 
@@ -202,12 +206,17 @@ Since this tool processes PDFs in your browser's memory (RAM), the size of the f
 
 ## 📦 Installation & Usage
 
-### Development Mode (for debugging):
+### Installation:
 
 ```bash
 git clone https://github.com/liuchunchun1012/PDF2MD.git
 cd PDF2MD
 npm install
+```
+
+### Development Mode (for debugging):
+
+```bash
 npm run dev
 ```
 
@@ -229,7 +238,6 @@ npm run preview
 3.  Click "Convert" to start conversion
 4.  Preview or download the Markdown file after completion
 
-> **VPN Note:** If you are in a region where Gemini API is not supported (e.g., China), you may need to use a VPN.
 
 ## 🛡️ Privacy & Security
 
