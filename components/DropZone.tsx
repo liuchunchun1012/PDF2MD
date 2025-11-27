@@ -150,7 +150,7 @@ export const DropZone: React.FC<DropZoneProps> = ({ onFilesAdded }) => {
             Click to upload or drag and drop
           </p>
           <p className="text-sm text-slate-500 mt-1">
-            Supports large files (200MB+).
+            Supports large files (50MB+).
             <br />
             We automatically split and process large documents for you.
           </p>

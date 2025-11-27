@@ -14,7 +14,7 @@ PDF2MD 是一款隐私优先的客户端网页应用，可将 PDF 文档（包�
 
 ## ✨ 核心功能
 
-*   **📚 支持大文件（200MB+）：** 大多数 AI 工具限制文件大小为 20MB。PDF2MD 会自动分析、拆分并在本地分块处理大型 PDF，然后合并结果，让您可以转换整本教科书。
+*   **📚 支持大文件（50MB+）：** 大多数 AI 工具限制文件大小为 20MB。PDF2MD 会自动分析、拆分并在本地分块处理大型 PDF，然后合并结果，让您可以转换整本教科书。
 *   **⚡ 混合智能模式：**
     *   **电子版PDF（快速）：** 自动提取文本层，只需几秒即可完成转换
     *   **扫描版PDF（完整）：** 使用AI视觉识别，准确处理图片中的文字和布局
@@ -144,7 +144,7 @@ If you find this app useful, please support me here: https://afdian.com/a/liuchu
 
 ## ✨ Key Features
 
-*   **📚 Large File Support (200MB+):** Most AI tools cap files at 20MB. PDF2MD automatically analyzes, splits, and processes large PDFs in chunks locally before merging the results, allowing you to convert entire textbooks.
+*   **📚 Large File Support (50MB+):** Most AI tools cap files at 20MB. PDF2MD automatically analyzes, splits, and processes large PDFs in chunks locally before merging the results, allowing you to convert entire textbooks.
 *   **⚡ Hybrid Intelligent Mode:**
     *   **Digital PDFs (Fast):** Auto-extracts text layer, completes conversion in seconds
     *   **Scanned PDFs (Complete):** Uses AI vision for accurate text and layout recognition
